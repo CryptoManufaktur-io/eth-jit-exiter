@@ -1,0 +1,15 @@
+.DS_Store
+
+config
+
+# VS Code
+.vscode
+
+__pycache__
+
+# Build executables and resources
+build/
+eth-jit-exitter.spec
+
+# Temporary folder created when building executable
+eth2spec
