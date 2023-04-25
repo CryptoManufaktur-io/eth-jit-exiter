@@ -105,6 +105,8 @@ def exit_validator():
 
         beacon_data = get_beacon_data()
 
+        LOGGER.info(beacon_data)
+
         voluntary_exit = VoluntaryExit(
             epoch=beacon_data['current_epoch'],
             validator_index=ValidatorIndex(validator_index),
