@@ -25,6 +25,9 @@ if __name__ == '__main__':
             with open(args.config, 'r') as file:
                 config = yaml.safe_load(file)
 
+            if os.getenv('EXITTER_PORT'):
+                config['port'] = os.getenv('EXITTER_PORT')
+
             if config['running_mode'] == 'WEBHOOK':
                 LOGGER.info(f"Running in WEBHOOK mode on port {config['port']}")
                 webhook_server.start_server(config)

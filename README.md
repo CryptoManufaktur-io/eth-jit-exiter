@@ -55,6 +55,8 @@ poetry run python eth_jit_exitter/main.py --config /path/to/config.yml
 running_mode: SERVER
 
 # The port to listen for requests from the external tools
+# Can also be set by the environment variable EXITTER_PORT
+# If both are present, the environment variable has precedence.
 port: 13131
 
 # List of SIGNER endpoints
@@ -70,6 +72,8 @@ signer_endpoints:
 running_mode: SIGNER
 
 # The port to listen for requests
+# Can also be set by the environment variable EXITTER_PORT
+# If both are present, the environment variable has precedence.
 port: 13131
 
 # URL of the Beacon Node to get Chain data and submit the Voluntary Exit message.
