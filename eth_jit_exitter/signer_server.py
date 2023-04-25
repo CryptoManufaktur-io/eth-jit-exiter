@@ -52,7 +52,12 @@ def submit_voluntary_exit(exit_message, signature):
         'signature': f"0x{signature}"
     }
 
+    LOGGER.info(payload)
+
     response = requests.post(f"{CONFIG['beacon_node_url']}/eth/v1/beacon/pool/voluntary_exits", json=payload)
+
+    LOGGER.info(response)
+
     return response
 
 @app.route('/exit-validator', methods=["POST"])
