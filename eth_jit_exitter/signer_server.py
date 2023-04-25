@@ -47,7 +47,7 @@ def submit_voluntary_exit(exit_message, signature):
     payload = {
         'message': {
             'epoch': exit_message.epoch,
-            'validator_index': exit_message.validator_index
+            'validator_index': str(exit_message.validator_index)
         },
         'signature': f"0x{signature}"
     }
@@ -62,11 +62,14 @@ def submit_voluntary_exit(exit_message, signature):
 
 @app.route('/exit-validator', methods=["POST"])
 def exit_validator():
-    print(CONFIG['dirk']['endpoint'])
+    LOGGER.info(CONFIG['dirk']['endpoint'])
 
     request_data = request.json
 
+    LOGGER.info(request_data)
+
     public_key = request_data.get('validator_pub_key')
+    validator_index = int(request_data.get('validator_index'))
 
     if public_key.startswith('0x'):
         public_key = public_key[2:]
@@ -104,7 +107,7 @@ def exit_validator():
 
         voluntary_exit = VoluntaryExit(
             epoch=beacon_data['current_epoch'],
-            validator_index=ValidatorIndex(394049),
+            validator_index=ValidatorIndex(validator_index),
         )
 
         domain = compute_domain(DOMAIN_VOLUNTARY_EXIT, beacon_data['current_fork_version'], beacon_data['genesis_validators_root'])
