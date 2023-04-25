@@ -46,7 +46,7 @@ def get_beacon_data():
 def submit_voluntary_exit(exit_message, signature):
     payload = {
         'message': {
-            'epoch': exit_message.epoch,
+            'epoch': str(exit_message.epoch),
             'validator_index': str(exit_message.validator_index)
         },
         'signature': f"0x{signature}"
