@@ -115,6 +115,12 @@ def exit_validator():
         domain = compute_domain(DOMAIN_VOLUNTARY_EXIT, beacon_data['current_fork_version'], beacon_data['genesis_validators_root'])
         signing_root = compute_signing_root(voluntary_exit, domain)
 
+        LOGGER.info("Domain:")
+        LOGGER.info(domain)
+
+        LOGGER.info("Signing Root:")
+        LOGGER.info(signing_root)
+
         sign_response = signer_stub.Sign(signer_pb2.SignRequest(
             account=account.name,
             data=signing_root.encode_bytes(),
