@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "eth-jit-exitter"
+name = "eth-jit-exiter"
 version = "0.1.0"
 description = ""
 authors = ["concentricspheres <107502292+concentricspheres@users.noreply.github.com>"]
 readme = "README.md"
-packages = [{include = "eth_jit_exitter"}]
+packages = [{include = "eth_jit_exiter"}]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"

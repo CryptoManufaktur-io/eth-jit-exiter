@@ -9,7 +9,7 @@ __pycache__
 
 # Build executables and resources
 build/
-eth-jit-exitter.spec
+eth-jit-exiter.spec
 
 # Temporary folder created when building executable
 eth2spec

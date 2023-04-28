@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from eth_jit_exitter import lister_pb2 as lister__pb2
+from eth_jit_exiter import lister_pb2 as lister__pb2
 
 
 class ListerStub(object):

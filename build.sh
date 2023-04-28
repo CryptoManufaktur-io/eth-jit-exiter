@@ -7,8 +7,8 @@ touch eth2spec/VERSION.txt
 poetry run pyinstaller \
 --onefile \
 --collect-data eth2spec \
---collect-data eth_jit_exitter ./eth_jit_exitter/main.py \
---name eth-jit-exitter \
---distpath build/eth-jit-exitter
+--collect-data eth_jit_exiter ./eth_jit_exiter/main.py \
+--name eth-jit-exiter \
+--distpath build/eth-jit-exiter
 
 rm -rf eth2spec

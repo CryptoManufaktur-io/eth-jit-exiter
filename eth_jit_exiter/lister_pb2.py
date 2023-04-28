@@ -12,8 +12,8 @@ _sym_db = _symbol_database.Default()
 
 
 from google.api import annotations_pb2 as google_dot_api_dot_annotations__pb2
-from eth_jit_exitter import endpoint_pb2 as endpoint__pb2
-from eth_jit_exitter import responsestate_pb2 as responsestate__pb2
+from eth_jit_exiter import endpoint_pb2 as endpoint__pb2
+from eth_jit_exiter import responsestate_pb2 as responsestate__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0clister.proto\x12\x02v1\x1a\x1cgoogle/api/annotations.proto\x1a\x0e\x65ndpoint.proto\x1a\x13responsestate.proto\"$\n\x13ListAccountsRequest\x12\r\n\x05paths\x18\x01 \x03(\t\"\x8c\x01\n\x14ListAccountsResponse\x12 \n\x05state\x18\x01 \x01(\x0e\x32\x11.v1.ResponseState\x12\x1d\n\x08\x41\x63\x63ounts\x18\x02 \x03(\x0b\x32\x0b.v1.Account\x12\x33\n\x13\x44istributedAccounts\x18\x03 \x03(\x0b\x32\x16.v1.DistributedAccount\"9\n\x07\x41\x63\x63ount\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x12\n\npublic_key\x18\x02 \x01(\x0c\x12\x0c\n\x04uuid\x18\x03 \x01(\x0c\"\xa1\x01\n\x12\x44istributedAccount\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x12\n\npublic_key\x18\x02 \x01(\x0c\x12\"\n\x0cparticipants\x18\x03 \x03(\x0b\x32\x0c.v1.Endpoint\x12\x19\n\x11signing_threshold\x18\x04 \x01(\r\x12\x0c\n\x04uuid\x18\x05 \x01(\x0c\x12\x1c\n\x14\x63omposite_public_key\x18\x06 \x01(\x0c\x32l\n\x06Lister\x12\x62\n\x0cListAccounts\x12\x17.v1.ListAccountsRequest\x1a\x18.v1.ListAccountsResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/v1/lister/listaccountsB{\n\x1e\x63om.wealdtech.eth2signerapi.v1B\x0bListerProtoP\x01Z*github.com/wealdtech/eth2-signer-api/pb/v1\xaa\x02\rEth2Signer.v1\xca\x02\rEth2Signer\\v1b\x06proto3')

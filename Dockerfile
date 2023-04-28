@@ -16,6 +16,6 @@ RUN poetry install
 
 RUN ./build.sh
 
-RUN mv build/eth-jit-exitter/eth-jit-exitter /bin/eth-jit-exitter
+RUN mv build/eth-jit-exiter/eth-jit-exiter /bin/eth-jit-exiter
 
-ENTRYPOINT [ "/bin/eth-jit-exitter" ]
+ENTRYPOINT [ "/bin/eth-jit-exiter" ]

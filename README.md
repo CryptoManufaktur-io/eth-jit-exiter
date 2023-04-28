@@ -1,6 +1,6 @@
-# eth-jit-exitter
+# eth-jit-exiter
 
-eth-jit-exitter provides a webhook for other tooling (e.g: [validator-ejector](https://github.com/lidofinance/validator-ejector)) to request the signing and submitting Voluntary Exit messages for Ethereum Validators.
+eth-jit-exiter provides a webhook for other tooling (e.g: [validator-ejector](https://github.com/lidofinance/validator-ejector)) to request the signing and submitting Voluntary Exit messages for Ethereum Validators.
 
 It is designed to request the signatures from [Dirk](https://github.com/attestantio/dirk/) or any other gRPC that follows the [eth2-signer-api](https://github.com/wealdtech/eth2-signer-api) definition.
 
@@ -37,7 +37,7 @@ poetry install
 ### Running locally
 
 ```shell
-poetry run python eth_jit_exitter/main.py --config /path/to/config.yml
+poetry run python eth_jit_exiter/main.py --config /path/to/config.yml
 ```
 
 ### Building Executable
@@ -55,7 +55,7 @@ poetry run python eth_jit_exitter/main.py --config /path/to/config.yml
 running_mode: SERVER
 
 # The port to listen for requests from the external tools
-# Can also be set by the environment variable EXITTER_PORT
+# Can also be set by the environment variable EXITER_PORT
 # If both are present, the environment variable has precedence.
 port: 13131
 
@@ -72,7 +72,7 @@ signer_endpoints:
 running_mode: SIGNER
 
 # The port to listen for requests
-# Can also be set by the environment variable EXITTER_PORT
+# Can also be set by the environment variable EXITER_PORT
 # If both are present, the environment variable has precedence.
 port: 13131
 
@@ -98,7 +98,7 @@ dirk:
 
 ## Security
 
-`eth-jit-exitter` is expected to run behind a firewall and only accessible by trusted sources.
+`eth-jit-exiter` is expected to run behind a firewall and only accessible by trusted sources.
 
 Make sure to secure the environment where you're running both the webhook and signers.
 

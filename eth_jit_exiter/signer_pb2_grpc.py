@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from eth_jit_exitter import signer_pb2 as signer__pb2
+from eth_jit_exiter import signer_pb2 as signer__pb2
 
 
 class SignerStub(object):

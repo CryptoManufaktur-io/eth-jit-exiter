@@ -10,10 +10,10 @@ import requests
 from flask import Flask, request
 from eth2spec.phase0.mainnet import DOMAIN_VOLUNTARY_EXIT, compute_domain, Version, VoluntaryExit, compute_signing_root, Root, Epoch, ValidatorIndex, bls, BLSPubkey, BLSSignature
 
-from eth_jit_exitter import signer_pb2
-from eth_jit_exitter import lister_pb2
-from eth_jit_exitter import signer_pb2_grpc
-from eth_jit_exitter import lister_pb2_grpc
+from eth_jit_exiter import signer_pb2
+from eth_jit_exiter import lister_pb2
+from eth_jit_exiter import signer_pb2_grpc
+from eth_jit_exiter import lister_pb2_grpc
 
 from py_ecc.bls.g2_primitives import G2_to_signature, signature_to_G2
 from py_ecc.optimized_bls12_381.optimized_curve import add, multiply, Z2, curve_order
