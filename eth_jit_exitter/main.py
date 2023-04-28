@@ -1,6 +1,7 @@
 import os
 import argparse
 import logging
+import time
 
 import yaml
 
@@ -11,6 +12,12 @@ logging.basicConfig()
 
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
+
+formatter = logging.Formatter(fmt='%(asctime)s [%(name)s] %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+formatter.converter = time.gmtime
+
+for handler in LOGGER.handlers:
+    handler.setFormatter(formatter)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

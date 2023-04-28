@@ -7,7 +7,6 @@ from flask import Flask, request
 logging.basicConfig()
 
 LOGGER = logging.getLogger()
-LOGGER.setLevel(logging.INFO)
 
 app = Flask(__name__)
 CONFIG = {}
@@ -37,7 +36,8 @@ async def async_requests(payload):
 def exit_webhook():
     data = request.json
 
-    LOGGER.info("Request body: ", data)
+    LOGGER.info("Request body: ")
+    LOGGER.info(data)
 
     validator_index = data.get('validatorIndex', None)
     validator_pub_key = data.get('validatorPubkey', None)
