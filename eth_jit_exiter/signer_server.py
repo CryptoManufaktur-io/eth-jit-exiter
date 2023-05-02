@@ -122,6 +122,11 @@ def get_composite_signature(credentials, account, data, domain):
 
     return BLSSignature.from_obj(recovered_signature)
 
+@app.route('/ping', methods=["GET"])
+def ping():
+    """Send a 200 response so the webhook knows the connection is fine."""
+    return {"message": "Pong!"}
+
 @app.route('/exit-validator', methods=["POST"])
 def exit_validator():
     endpoint = CONFIG['dirk']['endpoint']
