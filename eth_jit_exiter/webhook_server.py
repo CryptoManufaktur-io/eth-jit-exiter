@@ -5,6 +5,7 @@ import asyncio
 from aiohttp import ClientSession
 from flask import Flask, request
 from waitress import serve
+from pyrate_limiter import Limiter, RequestRate, BucketFullException, SQLiteBucket
 
 logging.basicConfig()
 
@@ -12,6 +13,7 @@ LOGGER = logging.getLogger()
 
 app = Flask(__name__)
 CONFIG = {}
+LIMITER = None
 
 async def make_request(session, method, url, payload):
     try:
@@ -44,6 +46,14 @@ async def async_requests(method, path, payload=None):
 # { "validatorIndex": "123", "validatorPubkey": "0x123" }
 @app.route("/webhook", methods=["POST"])
 def exit_webhook():
+    try:
+        LIMITER.try_acquire('webhook')
+    except BucketFullException as err:
+        volume = LIMITER.get_current_volume('webhook')
+        LOGGER.error(err.meta_info)
+        LOGGER.error(f"Current rate volume: {volume}")
+        return {"status": "RATE_LIMIT_EXCEEDED"}, 429
+
     data = request.json
 
     LOGGER.info("Request body: ")
@@ -93,7 +103,26 @@ def check_signer_endpoints():
 
 def start_server(config):
     global CONFIG
+    global LIMITER
+
     CONFIG = config
+
+    request_rate = CONFIG.get('rate_limit', {}).get('request_rate', 500)
+    interval = CONFIG.get('rate_limit', {}).get('interval', 604800)
+
+    rate = RequestRate(
+        limit=request_rate,
+        interval=interval
+    )
+
+    LIMITER = Limiter(
+        rate,
+        bucket_class=SQLiteBucket,
+        bucket_kwargs={'path': '/var/lib/eth-jit-exiter/limiter.sqlite'},
+    )
+
+    LOGGER.info(f"Rate limit set at {request_rate} requests per {interval} seconds")
+
     check_signer_endpoints()
     if os.getenv('FLASK_DEBUG', None) == '1':
         app.run('0.0.0.0', config.get('port', 13131))

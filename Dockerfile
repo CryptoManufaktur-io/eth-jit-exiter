@@ -20,4 +20,6 @@ RUN apt-get update && apt-get install -y ca-certificates bash tzdata hwloc libhw
 
 COPY --from=builder /app/build/eth-jit-exiter/eth-jit-exiter /bin/
 
+RUN mkdir /var/lib/eth-jit-exiter && chmod 0777 /var/lib/eth-jit-exiter
+
 ENTRYPOINT [ "/bin/eth-jit-exiter" ]
