@@ -1,8 +1,10 @@
+import os
 import logging
 import asyncio
 
 from aiohttp import ClientSession
 from flask import Flask, request
+from waitress import serve
 
 logging.basicConfig()
 
@@ -93,4 +95,7 @@ def start_server(config):
     global CONFIG
     CONFIG = config
     check_signer_endpoints()
-    app.run('0.0.0.0', CONFIG.get('port', 13131))
+    if os.getenv('FLASK_DEBUG', None) == '1':
+        app.run('0.0.0.0', config.get('port', 13131))
+    else:
+        serve(app, host="0.0.0.0", port=config.get('port', 13131))
