@@ -16,6 +16,8 @@ RUN ./build.sh
 
 FROM debian:bullseye-slim
 
+RUN apt-get update && apt-get install -y ca-certificates bash tzdata hwloc libhwloc-dev wget
+
 COPY --from=builder /app/build/eth-jit-exiter/eth-jit-exiter /bin/
 
 ENTRYPOINT [ "/bin/eth-jit-exiter" ]
