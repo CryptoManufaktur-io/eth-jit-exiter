@@ -10,12 +10,12 @@ WORKDIR /app
 
 COPY . .
 
-# RUN rm /app/poetry.lock
-
 RUN poetry install
 
 RUN ./build.sh
 
-RUN mv build/eth-jit-exiter/eth-jit-exiter /bin/eth-jit-exiter
+FROM debian:bullseye-slim
+
+COPY --from=builder /app/build/eth-jit-exiter/eth-jit-exiter /bin/
 
 ENTRYPOINT [ "/bin/eth-jit-exiter" ]
