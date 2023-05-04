@@ -1,13 +1,14 @@
+import os
 import logging
 import binascii
 import math
-import random
 import collections
 
 import grpc
 import requests
 
 from flask import Flask, request
+from waitress import serve
 from eth2spec.phase0.mainnet import DOMAIN_VOLUNTARY_EXIT, compute_domain, Version, VoluntaryExit, compute_signing_root, Root, Epoch, ValidatorIndex, bls, BLSPubkey, BLSSignature
 
 from eth_jit_exiter import signer_pb2
@@ -33,6 +34,7 @@ def lagrange_coefficient(i, indices, field_modulus):
     return lc
 
 def bls_signature_recover(_signatures):
+    """Lagrange Interpolation"""
     _signatures = collections.OrderedDict(sorted(_signatures.items()))
     indices = [x[0] for x in _signatures.items()]
     signatures = [x[1] for x in _signatures.items()]
@@ -122,22 +124,8 @@ def get_composite_signature(credentials, account, data, domain):
 
     return BLSSignature.from_obj(recovered_signature)
 
-@app.route('/exit-validator', methods=["POST"])
-def exit_validator():
-    endpoint = CONFIG['dirk']['endpoint']
-
-    LOGGER.info(f"Getting accounts list from endpoint {endpoint}")
-
-    request_data = request.json
-
-    LOGGER.info(request_data)
-
-    public_key = request_data.get('validator_pub_key')
-    validator_index = int(request_data.get('validator_index'))
-
-    if public_key.startswith('0x'):
-        public_key = public_key[2:]
-
+def get_grpc_credentials():
+    """Generate the gRPC SSL channel credentials"""
     root_certs = open(CONFIG['dirk']['ca_cert'], 'rb').read()
     client_key = open(CONFIG['dirk']['client_key'], 'rb').read()
     client_cert = open(CONFIG['dirk']['client_cert'], 'rb').read()
@@ -148,8 +136,19 @@ def exit_validator():
         certificate_chain=client_cert,
     )
 
+    return credentials
+
+def get_wallet_accounts():
+    """Return a list of all the accounts in the wallet."""
+    endpoint = CONFIG['dirk']['endpoint']
+
+    LOGGER.info(f"Getting accounts list from endpoint {endpoint}")
+
+    credentials = get_grpc_credentials()
+
     channel = grpc.secure_channel(endpoint, credentials)
     LOGGER.info("Waiting for List Accounts channel...")
+
     grpc.channel_ready_future(channel).result()
     LOGGER.info("Channel connected!")
 
@@ -161,33 +160,61 @@ def exit_validator():
 
     accounts_by_pub = {binascii.b2a_hex(account.composite_public_key).decode():account for account in accounts.DistributedAccounts}
 
-    if public_key in accounts_by_pub:
-        account = accounts_by_pub[public_key]
+    return accounts_by_pub
+
+def generate_voluntary_exit(account, validator_index):
+    LOGGER.info(f"Generating voluntary exit for {account.name}")
+    beacon_data = get_beacon_data()
+
+    LOGGER.info(beacon_data)
+
+    voluntary_exit = VoluntaryExit(
+        epoch=beacon_data['current_epoch'],
+        validator_index=ValidatorIndex(validator_index),
+    )
+
+    domain = compute_domain(DOMAIN_VOLUNTARY_EXIT, beacon_data['current_fork_version'], beacon_data['genesis_validators_root'])
+
+    LOGGER.info(f"Domain: {domain}")
+
+    credentials = get_grpc_credentials()
+
+    signature = get_composite_signature(
+        credentials=credentials,
+        account=account,
+        data=voluntary_exit.hash_tree_root(),
+        domain=domain
+    )
+
+    return voluntary_exit, signature, domain
+
+@app.route('/ping', methods=["GET"])
+def ping():
+    """Send a 200 response so the webhook knows the connection is fine."""
+    return {"message": "Pong!"}
+
+@app.route('/exit-validator', methods=["POST"])
+def exit_validator():
+    request_data = request.json
+
+    LOGGER.info(request_data)
+
+    public_key = request_data.get('validator_pub_key')
+    validator_index = int(request_data.get('validator_index'))
+
+    if public_key.startswith('0x'):
+        public_key = public_key[2:]
+
+    accounts = get_wallet_accounts()
+
+    if public_key in accounts:
+        account = accounts[public_key]
 
         LOGGER.info(f"Using public key {public_key}")
         LOGGER.info(f"Account name: {account.name}")
 
-        beacon_data = get_beacon_data()
-
-        LOGGER.info(beacon_data)
-
-        voluntary_exit = VoluntaryExit(
-            epoch=beacon_data['current_epoch'],
-            validator_index=ValidatorIndex(validator_index),
-        )
-
-        domain = compute_domain(DOMAIN_VOLUNTARY_EXIT, beacon_data['current_fork_version'], beacon_data['genesis_validators_root'])
-
-        LOGGER.info(f"Domain: {domain}")
-
         try:
-            signature = get_composite_signature(
-                credentials=credentials,
-                account=account,
-                data=voluntary_exit.hash_tree_root(),
-                domain=domain
-            )
-
+            voluntary_exit, signature, domain = generate_voluntary_exit(account, validator_index)
             signing_root = compute_signing_root(voluntary_exit, domain)
             valid = bls.Verify(BLSPubkey.fromhex(public_key), signing_root, signature)
             LOGGER.info(f"Is signature valid? {valid}")
@@ -209,11 +236,31 @@ def exit_validator():
             LOGGER.error(err)
             return {'status': 'ERROR WHEN GENERATING SIGNATURE'}, 400
     else:
-        channel.close()
-        LOGGER.info("Channel closed.")
         return {'status': 'NOT FOUND'}, 404
+
+def check_signing():
+    """Check that we're able to get signatures from Dirk using Validator Index `0` so it's never submittable."""
+    LOGGER.info("Checking that we can get signatures from Dirk.")
+    accounts = get_wallet_accounts()
+    account = accounts[list(accounts.keys())[0]]
+
+    voluntary_exit, signature, domain = generate_voluntary_exit(account, 1)
+
+    signing_root = compute_signing_root(voluntary_exit, domain)
+
+    valid = bls.Verify(BLSPubkey.from_obj(account.composite_public_key), signing_root, signature)
+
+    if valid:
+        LOGGER.info("Test signature is valid!")
+    else:
+        LOGGER.error("Generated signature is not valid!")
 
 def start_server(config):
     global CONFIG
     CONFIG = config
-    app.run('0.0.0.0', config.get('port', 13131))
+    check_signing()
+
+    if os.getenv('FLASK_DEBUG', None) == '1':
+        app.run('0.0.0.0', config.get('port', 13131))
+    else:
+        serve(app, host="0.0.0.0", port=config.get('port', 13131))

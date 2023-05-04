@@ -59,6 +59,12 @@ running_mode: SERVER
 # If both are present, the environment variable has precedence.
 port: 13131
 
+# Rate limit on the webhook endpoint.
+# Default is 500 requests per 7 days.
+rate_limit:
+  request_rate: 500
+  interval: 604800
+
 # List of SIGNER endpoints
 signer_endpoints:
   - http://signer-a.example.com:13131
@@ -95,6 +101,14 @@ dirk:
   # Name of the Wallet
   wallet: Wallet
 ```
+
+## Rate Limit
+
+By default, requests to the webhook are rate limited.
+
+In order for the volume counter to be persisted, SQLite is used as a backend.
+
+A persistent volume is necessary when running in Docker, mapped to `/var/lib/eth-jit-exiter/`.
 
 ## Security
 
