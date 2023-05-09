@@ -2,6 +2,8 @@ import os
 import logging
 import asyncio
 
+from datetime import datetime
+
 from aiohttp import ClientSession
 from flask import Flask, request
 from waitress import serve
@@ -137,6 +139,7 @@ def start_server(config):
         rate,
         bucket_class=SQLiteBucket,
         bucket_kwargs={'path': '/var/lib/eth-jit-exiter/limiter.sqlite'},
+        time_function=lambda: datetime.utcnow().timestamp()
     )
 
     LOGGER.info(f"Rate limit set at {request_rate} requests per {interval} seconds")
