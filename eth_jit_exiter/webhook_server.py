@@ -6,6 +6,8 @@ from aiohttp import ClientSession
 from flask import Flask, request
 from waitress import serve
 from pyrate_limiter import Limiter, RequestRate, BucketFullException, SQLiteBucket
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
+from prometheus_client import make_wsgi_app, Counter
 
 logging.basicConfig()
 
@@ -14,6 +16,12 @@ LOGGER = logging.getLogger()
 app = Flask(__name__)
 CONFIG = {}
 LIMITER = None
+
+# Define all metrics
+EXIT_REQUESTS_COUNTER = Counter('exit_requests', 'Number of times an exit has been requested')
+EXIT_REQUESTS_LIMITED = Counter('exit_requests_rate_limited', 'Number of times an exit request has been rate limited')
+EXIT_REQUESTS_SUCCESSFUL = Counter('exit_requests_successful', 'Number of times an exit request has been submitted successfully')
+EXIT_REQUESTS_FAILED = Counter('exit_requests_failed', 'Number of times an exit request failed')
 
 async def make_request(session, method, url, payload):
     try:
@@ -46,12 +54,15 @@ async def async_requests(method, path, payload=None):
 # { "validatorIndex": "123", "validatorPubkey": "0x123" }
 @app.route("/webhook", methods=["POST"])
 def exit_webhook():
+    EXIT_REQUESTS_COUNTER.inc()
+
     try:
         LIMITER.try_acquire('webhook')
     except BucketFullException as err:
         volume = LIMITER.get_current_volume('webhook')
         LOGGER.error(err.meta_info)
         LOGGER.error(f"Current rate volume: {volume}")
+        EXIT_REQUESTS_LIMITED.inc()
         return {"status": "RATE_LIMIT_EXCEEDED"}, 429
 
     data = request.json
@@ -82,9 +93,16 @@ def exit_webhook():
             reponse_body = response['body']
 
             if reponse_body.get('status', None) == 'SUCCEEDED':
+                EXIT_REQUESTS_SUCCESSFUL.inc()
                 return {"status": "SUCCEEDED"}, 200
 
+    EXIT_REQUESTS_FAILED.inc()
     return {"status": "FAILED"}, 418
+
+# Add prometheus wsgi middleware to route /metrics requests
+app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
+    '/metrics': make_wsgi_app()
+})
 
 def check_signer_endpoints():
     """Check that all SIGNER endpoints can be reached."""
