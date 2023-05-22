@@ -110,6 +110,10 @@ In order for the volume counter to be persisted, SQLite is used as a backend.
 
 A persistent volume is necessary when running in Docker, mapped to `/var/lib/eth-jit-exiter/`.
 
+## Metrics
+
+Metrics from the webhook endpoint are published at `/metrics` on the same port.
+
 ## Security
 
 `eth-jit-exiter` is expected to run behind a firewall and only accessible by trusted sources.
