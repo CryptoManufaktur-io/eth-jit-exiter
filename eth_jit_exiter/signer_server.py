@@ -60,8 +60,9 @@ def get_beacon_data():
     fork_schedule = requests.get(f"{CONFIG['beacon_node_url']}/eth/v1/config/fork_schedule").json()['data']
 
     for schedule in fork_schedule:
-        if int(schedule['epoch']) <= current_epoch:
+        if schedule['current_version'].startswith("0x03"):
             current_fork_version = schedule['current_version']
+            break
 
     # Get the Genesis validators root
     genesis_validators_root = requests.get(f"{CONFIG['beacon_node_url']}/eth/v1/beacon/genesis").json()['data']['genesis_validators_root']
