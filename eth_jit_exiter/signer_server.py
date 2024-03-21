@@ -19,11 +19,12 @@ from eth_jit_exiter import lister_pb2_grpc
 from py_ecc.bls.g2_primitives import G2_to_signature, signature_to_G2
 from py_ecc.optimized_bls12_381.optimized_curve import add, multiply, Z2, curve_order
 
-LOGGER = logging.getLogger()
-
-SLOTS_PER_EPOCH = 32
 app = Flask(__name__)
+
+LOGGER = logging.getLogger()
+SLOTS_PER_EPOCH = 32
 CONFIG = {}
+CAPELLA_FORK_VERSIONS = ["0x03000000", "0x04017000"]
 
 def lagrange_coefficient(i, indices, field_modulus):
     lc = 1
@@ -60,7 +61,7 @@ def get_beacon_data():
     fork_schedule = requests.get(f"{CONFIG['beacon_node_url']}/eth/v1/config/fork_schedule").json()['data']
 
     for schedule in fork_schedule:
-        if schedule['current_version'].startswith("0x03"):
+        if schedule['current_version'] in CAPELLA_FORK_VERSIONS:
             current_fork_version = schedule['current_version']
             break
 
