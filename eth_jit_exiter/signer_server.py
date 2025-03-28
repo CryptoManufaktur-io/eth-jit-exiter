@@ -19,12 +19,11 @@ from eth_jit_exiter import lister_pb2_grpc
 from py_ecc.bls.g2_primitives import G2_to_signature, signature_to_G2
 from py_ecc.optimized_bls12_381.optimized_curve import add, multiply, Z2, curve_order
 
-app = Flask(__name__)
-
 LOGGER = logging.getLogger()
+
 SLOTS_PER_EPOCH = 32
+app = Flask(__name__)
 CONFIG = {}
-CAPELLA_FORK_VERSIONS = ["0x03000000", "0x04017000"]
 
 def lagrange_coefficient(i, indices, field_modulus):
     lc = 1
@@ -57,19 +56,11 @@ def get_beacon_data():
     # Calculate current epoch
     current_epoch = math.floor(int(current_slot) / SLOTS_PER_EPOCH)
 
-    # Get current fork from the fork schedule
-    fork_schedule = requests.get(f"{CONFIG['beacon_node_url']}/eth/v1/config/fork_schedule").json()['data']
-
-    for schedule in fork_schedule:
-        if schedule['current_version'] in CAPELLA_FORK_VERSIONS:
-            current_fork_version = schedule['current_version']
-            break
-
     # Get the Genesis validators root
     genesis_validators_root = requests.get(f"{CONFIG['beacon_node_url']}/eth/v1/beacon/genesis").json()['data']['genesis_validators_root']
 
     return {
-        'current_fork_version': Version(current_fork_version),
+        'current_fork_version': Version(CONFIG['exit_fork']),
         'current_epoch': Epoch(current_epoch),
         'genesis_validators_root': Root(genesis_validators_root),
     }
