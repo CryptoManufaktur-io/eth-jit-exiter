@@ -78,7 +78,7 @@ signer_endpoints:
 running_mode: SIGNER
 
 # Capella fork.
-# 0x03000000 on mainnet, 0x30000910 on hoodi
+# 0x03000000 on mainnet, 0x40000910 on hoodi
 exit_fork: 0x03000000
 
 # The port to listen for requests
