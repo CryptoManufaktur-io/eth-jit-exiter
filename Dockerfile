@@ -1,4 +1,4 @@
-FROM python:3.9-bullseye as builder
+FROM python:3.9.18-bullseye as builder
 
 RUN python --version
 
