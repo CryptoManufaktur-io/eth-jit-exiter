@@ -56,19 +56,11 @@ def get_beacon_data():
     # Calculate current epoch
     current_epoch = math.floor(int(current_slot) / SLOTS_PER_EPOCH)
 
-    # Get current fork from the fork schedule
-    fork_schedule = requests.get(f"{CONFIG['beacon_node_url']}/eth/v1/config/fork_schedule").json()['data']
-
-    for schedule in fork_schedule:
-        if schedule['current_version'].startswith("0x03"):
-            current_fork_version = schedule['current_version']
-            break
-
     # Get the Genesis validators root
     genesis_validators_root = requests.get(f"{CONFIG['beacon_node_url']}/eth/v1/beacon/genesis").json()['data']['genesis_validators_root']
 
     return {
-        'current_fork_version': Version(current_fork_version),
+        'current_fork_version': Version(CONFIG['exit_fork']),
         'current_epoch': Epoch(current_epoch),
         'genesis_validators_root': Root(genesis_validators_root),
     }

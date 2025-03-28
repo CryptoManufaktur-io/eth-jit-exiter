@@ -35,6 +35,9 @@ if __name__ == '__main__':
             if os.getenv('EXITER_PORT'):
                 config['port'] = os.getenv('EXITER_PORT')
 
+            if os.getenv('EXIT_FORK'):
+                config['exit_fork'] = os.getenv('EXIT_FORK')
+
             if config['running_mode'] == 'WEBHOOK':
                 LOGGER.info(f"Running in WEBHOOK mode on port {config['port']}")
                 webhook_server.start_server(config)
