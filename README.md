@@ -79,7 +79,7 @@ running_mode: SIGNER
 
 # Capella fork.
 # 0x03000000 on mainnet, 0x40000910 on hoodi
-exit_fork: 0x03000000
+exit_fork: "0x03000000"
 
 # The port to listen for requests
 # Can also be set by the environment variable EXITER_PORT
